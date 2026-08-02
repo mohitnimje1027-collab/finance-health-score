@@ -1,4 +1,4 @@
-
+from cleaner import clean_transactions
 import pandas as pd
 from pathlib import Path
 import re
@@ -157,11 +157,6 @@ if __name__ == "__main__":
     df_csv = load_transaction_file(csv_path)
     roles_csv = detect_column_roles(df_csv)
     print("Detected roles:", roles_csv)
-    print(standardize_transactions(df_csv, roles_csv))
-
-    print("\n--- Testing PDF ---")
-    pdf_path = project_root / "data" / "sample_statement.pdf"
-    df_pdf = load_transaction_file(pdf_path)
-    roles_pdf = detect_column_roles(df_pdf)
-    print("Detected roles:", roles_pdf)
-    print(standardize_transactions(df_pdf, roles_pdf))
+    clean_df = standardize_transactions(df_csv, roles_csv)
+    clean_df = clean_transactions(clean_df)
+    print(clean_df)
