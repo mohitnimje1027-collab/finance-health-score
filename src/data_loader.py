@@ -2,6 +2,8 @@ from cleaner import clean_transactions
 import pandas as pd
 from pathlib import Path
 import re
+from cleaner import clean_transactions, handle_edge_cases
+
 REQUIRED_ROLES_OPTION_A = ['date', 'description', 'amount']
 REQUIRED_ROLES_OPTION_B = ['date', 'description', 'debit', 'credit']
 
@@ -21,6 +23,16 @@ def check_detection_confidence(roles):
         missing.append('amount (or debit/credit)')
     
     return False, missing
+
+def clean_amount_column(series):
+    """Strips currency symbols, commas, and spaces before numeric conversion."""
+    return (
+        series.astype(str)
+        .str.replace('₹', '', regex=False)
+        .str.replace(',', '', regex=False)
+        .str.replace(' ', '', regex=False)
+        .replace('', pd.NA)
+    )
 
 
 def standardize_transactions(df, roles, manual_overrides=None):
@@ -44,11 +56,11 @@ def standardize_transactions(df, roles, manual_overrides=None):
     clean['description'] = df[roles['description']].astype(str).str.strip()
 
     if 'debit' in roles and 'credit' in roles:
-        debit = pd.to_numeric(df[roles['debit']], errors='coerce').fillna(0)
-        credit = pd.to_numeric(df[roles['credit']], errors='coerce').fillna(0)
+        debit = pd.to_numeric(clean_amount_column(df[roles['debit']]), errors='coerce').fillna(0)
+        credit = pd.to_numeric(clean_amount_column(df[roles['credit']]), errors='coerce').fillna(0)
         clean['amount'] = credit - debit
     else:
-        clean['amount'] = pd.to_numeric(df[roles['amount']], errors='coerce')
+        clean['amount'] = pd.to_numeric(clean_amount_column(df[roles['amount']]), errors='coerce')
 
     clean = clean.dropna(subset=['date', 'amount']).reset_index(drop=True)
     return clean
@@ -83,7 +95,7 @@ def detect_column_roles(df):
     return roles
 
 
-def standardize_transactions(df, roles):
+'''def standardize_transactions(df, roles):
     """
     Converts the raw dataframe into a clean standard format:
     columns = ['date', 'description', 'amount']
@@ -104,7 +116,7 @@ def standardize_transactions(df, roles):
         raise ValueError("Could not detect amount columns. Manual column mapping needed.")
 
     clean = clean.dropna(subset=['date', 'amount']).reset_index(drop=True)
-    return clean
+    return clean'''
 
 def load_transaction_file(filepath):
     filepath = str(filepath)
@@ -149,14 +161,28 @@ def load_pdf_statement(filepath):
     print("Columns found:", list(df.columns))
     return df
 
+def process_statement(filepath, manual_overrides=None):
+    """
+    Full pipeline: load -> detect columns -> standardize -> clean -> handle edge cases.
+    Returns a clean DataFrame with columns: date, description, amount, merchant
+    """
+    df = load_transaction_file(filepath)
+    roles = detect_column_roles(df)
+
+    is_confident, missing = check_detection_confidence({**roles, **(manual_overrides or {})})
+    if not is_confident:
+        raise ValueError(f"Low confidence in detected columns. Missing: {missing}")
+
+    df = standardize_transactions(df, roles, manual_overrides)
+    df = clean_transactions(df)
+    df = handle_edge_cases(df)
+
+    print(f"\nPipeline complete: {len(df)} clean transactions ready.")
+    return df
+
 if __name__ == "__main__":
     project_root = Path(__file__).resolve().parent.parent
-
-    print("--- Testing CSV ---")
     csv_path = project_root / "data" / "sample_transactions.csv"
-    df_csv = load_transaction_file(csv_path)
-    roles_csv = detect_column_roles(df_csv)
-    print("Detected roles:", roles_csv)
-    clean_df = standardize_transactions(df_csv, roles_csv)
-    clean_df = clean_transactions(clean_df)
-    print(clean_df)
+
+    final_df = process_statement(csv_path)
+    print(final_df)

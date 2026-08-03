@@ -55,3 +55,20 @@ def clean_transactions(df):
     df = remove_duplicate_transactions(df)
     df['merchant'] = df['description'].apply(normalize_merchant_name)
     return df
+
+def handle_edge_cases(df):
+    """
+    Cleans up remaining real-world messiness:
+    - Blank/NaN descriptions -> labeled as 'Unknown'
+    - Zero-amount transactions -> removed (not real spend/income)
+    """
+    df['description'] = df['description'].replace('', pd.NA)
+    df['description'] = df['description'].fillna('Unknown Transaction')
+
+    before = len(df)
+    df = df[df['amount'] != 0].reset_index(drop=True)
+    removed = before - len(df)
+    if removed:
+        print(f"Removed {removed} zero-amount transaction(s).")
+
+    return df
