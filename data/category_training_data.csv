@@ -1,0 +1,42 @@
+﻿merchant,category
+Swiggy,Food
+Zomato,Food
+Dominos,Food
+McDonalds,Food
+Starbucks,Food
+Netflix,Subscriptions
+Spotify,Subscriptions
+Amazon Prime,Subscriptions
+Hotstar,Subscriptions
+Amazon,Shopping
+Flipkart,Shopping
+Myntra,Shopping
+Ajio,Shopping
+Salary,Income
+Interest Credit,Income
+Refund,Income
+Cashback,Income
+Electricity Board,Bills
+Airtel,Bills
+Jio,Bills
+Vodafone,Bills
+Rent,Bills
+Uber,Travel
+Ola,Travel
+Irctc,Travel
+Indigo,Travel
+Makemytrip,Travel
+Apollo Pharmacy,Health
+Practo,Health
+Pharmeasy,Health
+Bigbasket,Groceries
+Blinkit,Groceries
+Zepto,Groceries
+Dmart,Groceries
+Reliance Fresh,Groceries
+Bookmyshow,Entertainment
+Pvr,Entertainment
+Zerodha,Investment
+Groww,Investment
+Upstox,Investment
+Mutual Fund,Investment
