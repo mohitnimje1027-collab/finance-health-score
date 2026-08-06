@@ -13,7 +13,7 @@ def load_model():
     return _model
 
 
-def predict_category(merchant_name, confidence_threshold=0.35):
+def predict_category(merchant_name, confidence_threshold=0.25):
     """
     Predicts a category for a given merchant name.
     Returns (category, confidence). If confidence is below threshold,

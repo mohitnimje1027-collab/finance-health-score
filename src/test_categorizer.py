@@ -1,11 +1,11 @@
 from categorizer import predict_category
 
 test_merchants = [
-    "Kfc",              # never seen — should still lean Food via pattern
-    "Nykaa",            # never seen — Shopping-ish name pattern
-    "Airtel Dth",       # variant of Airtel — should catch Bills
-    "Big Basket",       # variant of Bigbasket — should catch Groceries
-    "Random Merchant X" # totally nonsense — should be low confidence
+    "Chaayos",          # unseen — Food, similar pattern to Chai Point
+    "Purplle",          # unseen — Shopping, similar pattern to Nykaa/Myntra
+    "Ubereats",         # unseen — Food, contains "Uber" pattern (tricky — could confuse with Travel)
+    "Ekart Logistics",  # unseen — ambiguous, real-world messy case
+    "Random Merchant X" # nonsense — should stay Uncategorized
 ]
 
 for merchant in test_merchants:
