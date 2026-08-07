@@ -1,0 +1,107 @@
+﻿merchant,category
+Swiggy,Food
+Zomato,Food
+Dominos,Food
+Mcdonalds,Food
+Starbucks,Food
+Kfc,Food
+Burger King,Food
+Pizza Hut,Food
+Subway,Food
+Baskin Robbins,Food
+Chai Point,Food
+Faasos,Food
+Wow Momo,Food
+Haldirams,Food
+Barbeque Nation,Food
+Chaayos,Food
+Ubereats,Food
+Uber Eats,Food
+Netflix,Subscriptions
+Spotify,Subscriptions
+Amazon Prime,Subscriptions
+Hotstar,Subscriptions
+Youtube Premium,Subscriptions
+Apple Music,Subscriptions
+Sonyliv,Subscriptions
+Zee5,Subscriptions
+Jiocinema,Subscriptions
+Amazon,Shopping
+Flipkart,Shopping
+Myntra,Shopping
+Ajio,Shopping
+Nykaa,Shopping
+Meesho,Shopping
+Snapdeal,Shopping
+Tata Cliq,Shopping
+Croma,Shopping
+Reliance Digital,Shopping
+Lenskart,Shopping
+Firstcry,Shopping
+Purplle,Shopping
+Ekart,Shopping
+Ekart Logistics,Shopping
+Salary,Income
+Interest Credit,Income
+Refund,Income
+Cashback,Income
+Dividend,Income
+Bonus,Income
+Freelance Payment,Income
+Reimbursement,Income
+Electricity Board,Bills
+Airtel,Bills
+Jio,Bills
+Vodafone,Bills
+Rent,Bills
+Airtel Dth,Bills
+Tata Sky,Bills
+Bsnl,Bills
+Gas Bill,Bills
+Water Bill,Bills
+Broadband,Bills
+Act Fibernet,Bills
+Society Maintenance,Bills
+Uber,Travel
+Ola,Travel
+Irctc,Travel
+Indigo,Travel
+Makemytrip,Travel
+Spicejet,Travel
+Air India,Travel
+Redbus,Travel
+Rapido,Travel
+Yatra,Travel
+Goibibo,Travel
+Vistara,Travel
+Apollo Pharmacy,Health
+Practo,Health
+Pharmeasy,Health
+Netmeds,Health
+1mg,Health
+Medplus,Health
+Cult Fit,Health
+Max Hospital,Health
+Fortis Hospital,Health
+Bigbasket,Groceries
+Blinkit,Groceries
+Zepto,Groceries
+Dmart,Groceries
+Reliance Fresh,Groceries
+Jiomart,Groceries
+Spencers,Groceries
+More Supermarket,Groceries
+Nature Basket,Groceries
+Bookmyshow,Entertainment
+Pvr,Entertainment
+Inox,Entertainment
+Timezone,Entertainment
+Smaash,Entertainment
+Zerodha,Investment
+Groww,Investment
+Upstox,Investment
+Mutual Fund,Investment
+Angel One,Investment
+Icici Direct,Investment
+Paytm Money,Investment
+Fixed Deposit,Investment

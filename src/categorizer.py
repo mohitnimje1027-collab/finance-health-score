@@ -1,6 +1,7 @@
 import joblib
 import pandas as pd
 from pathlib import Path
+from merchant_dictionary import match_known_merchant
 
 _model = None
 
@@ -13,12 +14,20 @@ def load_model():
     return _model
 
 
+
+
 def predict_category(merchant_name, confidence_threshold=0.25):
     """
-    Predicts a category for a given merchant name.
-    Returns (category, confidence). If confidence is below threshold,
-    category is returned as 'Uncategorized' so it can be flagged for manual review.
+    Hybrid categorization:
+    1. Try fuzzy-matching against the curated merchant dictionary (fast, precise)
+    2. Fall back to the ML model for unrecognized merchants
     """
+    # Layer 1: Dictionary match
+    dict_category, dict_score = match_known_merchant(merchant_name)
+    if dict_category is not None:
+        return dict_category, round(dict_score / 100, 2)  # normalize to 0-1 scale like ML confidence
+
+    # Layer 2: ML fallback
     model = load_model()
     probs = model.predict_proba([merchant_name])[0]
     best_idx = probs.argmax()

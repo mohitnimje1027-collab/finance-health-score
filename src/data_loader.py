@@ -3,6 +3,9 @@ import pandas as pd
 from pathlib import Path
 import re
 from cleaner import clean_transactions, handle_edge_cases
+from categorizer import categorize_transactions
+from feature_engineering import compute_monthly_summary, compute_category_breakdown
+
 
 REQUIRED_ROLES_OPTION_A = ['date', 'description', 'amount']
 REQUIRED_ROLES_OPTION_B = ['date', 'description', 'debit', 'credit']
@@ -162,10 +165,6 @@ def load_pdf_statement(filepath):
     return df
 
 def process_statement(filepath, manual_overrides=None):
-    """
-    Full pipeline: load -> detect columns -> standardize -> clean -> handle edge cases.
-    Returns a clean DataFrame with columns: date, description, amount, merchant
-    """
     df = load_transaction_file(filepath)
     roles = detect_column_roles(df)
 
@@ -176,13 +175,26 @@ def process_statement(filepath, manual_overrides=None):
     df = standardize_transactions(df, roles, manual_overrides)
     df = clean_transactions(df)
     df = handle_edge_cases(df)
+    df = categorize_transactions(df)
 
-    print(f"\nPipeline complete: {len(df)} clean transactions ready.")
-    return df
+    needs_review = df[df['category'] == 'Uncategorized']
+    if len(needs_review) > 0:
+        print(f"\n{len(needs_review)} transaction(s) need manual review.")
+
+    print(f"Pipeline complete: {len(df)} clean, categorized transactions ready.")
+    return df, needs_review
 
 if __name__ == "__main__":
     project_root = Path(__file__).resolve().parent.parent
     csv_path = project_root / "data" / "sample_transactions.csv"
 
-    final_df = process_statement(csv_path)
+    final_df, review_df = process_statement(csv_path)
     print(final_df)
+    if len(review_df) > 0:
+        print("\nNeeds manual review:")
+        print(review_df[['date', 'description', 'merchant']])
+
+    print("\nMonthly summary:")
+    print(compute_monthly_summary(final_df))
+    print("\nCategory breakdown:")
+    print(compute_category_breakdown(final_df))
