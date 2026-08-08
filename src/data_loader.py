@@ -185,6 +185,14 @@ def process_statement(filepath, manual_overrides=None):
     return df, needs_review
 
 if __name__ == "__main__":
+    from feature_engineering import (
+        compute_monthly_summary,
+        compute_category_breakdown,
+        compute_behavioral_features,
+        detect_anomalies
+    )
+    from health_score import compute_health_score
+
     project_root = Path(__file__).resolve().parent.parent
     csv_path = project_root / "data" / "sample_transactions.csv"
 
@@ -195,6 +203,19 @@ if __name__ == "__main__":
         print(review_df[['date', 'description', 'merchant']])
 
     print("\nMonthly summary:")
-    print(compute_monthly_summary(final_df))
+    monthly_summary = compute_monthly_summary(final_df)
+    print(monthly_summary)
+
     print("\nCategory breakdown:")
     print(compute_category_breakdown(final_df))
+
+    print("\nBehavioral features:")
+    behavioral = compute_behavioral_features(final_df)
+    print(behavioral)
+
+    print("\nAnomalies detected:")
+    print(detect_anomalies(final_df))
+
+    print("\nHealth Score:")
+    score = compute_health_score(monthly_summary, behavioral)
+    print(score)
