@@ -83,3 +83,13 @@ def detect_anomalies(df, threshold_multiplier=1.8):
     anomalies = monthly_cat[monthly_cat['is_anomaly']]
 
     return anomalies[['month', 'category', 'amount', 'avg_spend']]
+
+def prepare_forecast_data(monthly_summary):
+    """
+    Converts monthly summary into a simple numeric sequence for forecasting.
+    Returns X (month index: 0, 1, 2...) and y (savings per month).
+    """
+    monthly_summary = monthly_summary.reset_index(drop=True)
+    X = monthly_summary.index.values.reshape(-1, 1)  # 0, 1, 2, ...
+    y = monthly_summary['savings'].values
+    return X, y

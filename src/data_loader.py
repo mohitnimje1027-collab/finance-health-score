@@ -5,6 +5,9 @@ import re
 from cleaner import clean_transactions, handle_edge_cases
 from categorizer import categorize_transactions
 from feature_engineering import compute_monthly_summary, compute_category_breakdown
+from feature_engineering import prepare_forecast_data
+from forecaster import forecast_savings, assess_overspending_risk
+
 
 
 REQUIRED_ROLES_OPTION_A = ['date', 'description', 'amount']
@@ -219,3 +222,11 @@ if __name__ == "__main__":
     print("\nHealth Score:")
     score = compute_health_score(monthly_summary, behavioral)
     print(score)
+
+    print("\nSavings Forecast (next 6 months):")
+    X, y = prepare_forecast_data(monthly_summary)
+    forecast = forecast_savings(X, y)
+    print(forecast)
+
+    print("\nRisk Assessment:")
+    print(assess_overspending_risk(monthly_summary, forecast))
