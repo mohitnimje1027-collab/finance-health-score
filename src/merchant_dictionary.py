@@ -14,16 +14,11 @@ def load_dictionary():
     return _dictionary
 
 
-def match_known_merchant(merchant_name, score_threshold=85):
-    """
-    Tries to match merchant_name against the curated dictionary using fuzzy matching.
-    Returns (category, score) if a confident match is found, else (None, 0).
-    score_threshold=85 means "must be at least 85% similar" (out of 100) to count as a match.
-    """
+def match_known_merchant(merchant_name, score_threshold=80):
     dictionary = load_dictionary()
     known_names = list(dictionary.keys())
 
-    result = process.extractOne(merchant_name, known_names, scorer=fuzz.WRatio)
+    result = process.extractOne(merchant_name, known_names, scorer=fuzz.partial_ratio)
     if result is None:
         return None, 0
 

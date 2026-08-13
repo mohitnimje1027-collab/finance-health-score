@@ -1,6 +1,51 @@
 import re
 import pandas as pd
 
+def parse_transaction_narration(description):
+    """
+    Tries multiple known Indian bank narration formats and extracts:
+    - payee/merchant name fragment (if identifiable)
+    - transaction_type tag (UPI, NEFT, RTGS, IMPS, POS, ATM, CHEQUE, OTHER)
+    Returns (payee_name_or_None, transaction_type)
+    """
+    text = str(description).upper().strip()
+
+    # UPI: UPI/DR|CR/refno/PAYEE/BANK/handle...
+    match = re.search(r'UPI/(?:DR|CR)/\d+/([A-Za-z0-9 .]+?)/', text)
+    if match:
+        return match.group(1).strip(), 'UPI'
+
+    # NEFT: NEFT-refno-PAYEE or NEFT/refno/PAYEE
+    match = re.search(r'NEFT[\-/]\w+[\-/]([A-Za-z0-9 .]+)', text)
+    if match:
+        return match.group(1).strip(), 'NEFT'
+
+    # RTGS: similar to NEFT
+    match = re.search(r'RTGS[\-/]\w+[\-/]([A-Za-z0-9 .]+)', text)
+    if match:
+        return match.group(1).strip(), 'RTGS'
+
+    # IMPS: IMPS/refno/PAYEE or IMPS-refno-PAYEE
+    match = re.search(r'IMPS[\-/]\w+[\-/]([A-Za-z0-9 .]+)', text)
+    if match:
+        return match.group(1).strip(), 'IMPS'
+
+    # POS / Card swipe: POS <merchant name> or POS/merchant
+    match = re.search(r'POS[\s/]+([A-Za-z0-9 .]+)', text)
+    if match:
+        return match.group(1).strip(), 'POS'
+
+    # ATM withdrawal: no merchant, it's cash
+    if re.search(r'\bATM\b|\bCASH WDL\b|\bCSH WDL\b', text):
+        return None, 'ATM'
+
+    # Cheque: no merchant identifiable directly
+    if re.search(r'\bCHQ\b|\bCHEQUE\b', text):
+        return None, 'CHEQUE'
+
+    # Nothing matched
+    return None, 'OTHER'
+
 def remove_duplicate_transactions(df):
     """
     Removes exact duplicate transactions (same date, description, amount).
@@ -16,33 +61,31 @@ def remove_duplicate_transactions(df):
 
 
 def normalize_merchant_name(description):
-    text = str(description).upper()
-    
-    # Income-type entries aren't merchants — label them directly
+    payee, txn_type = parse_transaction_narration(description)
+
+    # Cash and cheque transactions have no merchant — handle explicitly, don't guess
+    if txn_type == 'ATM':
+        return 'ATM Withdrawal'
+    if txn_type == 'CHEQUE':
+        return 'Cheque Transaction'
+
+    text = payee if payee else str(description).upper()
+
     income_keywords = ['SALARY', 'INTEREST CREDIT', 'REFUND', 'CASHBACK', 'DIVIDEND']
     for kw in income_keywords:
         if kw in text:
             return kw.title()
 
-    # Remove common prefixes banks add (UPI, NEFT, IMPS, POS, etc.)
-    text = re.sub(r'^(UPI|NEFT|IMPS|POS|ECS|ACH)[\s\-/]*', '', text)
-
-    # Remove anything after a *, /, or @ (transaction IDs, UPI handles, locations)
+    text = re.sub(r'^(UPI|NEFT|IMPS|POS|ECS|ACH|RTGS)[\s\-/]*', '', text)
     text = re.split(r'[\*/@]', text)[0]
-
-    # Remove trailing/embedded long digit sequences (reference numbers)
     text = re.sub(r'\d{4,}', '', text)
 
-    # Remove common noise words
     noise_words = ['SUBSCRIPTION', 'ONLINE', 'PAY', 'PAYMENT', 'ORDER', 'BANGALORE',
-                   'MUMBAI', 'DELHI', 'PUNE', 'HYDERABAD', 'CORP', 'LTD', 'PVT']
+                   'MUMBAI', 'DELHI', 'PUNE', 'HYDERABAD', 'CORP', 'LTD', 'PVT', 'TFR', 'DEP', 'WDL']
     for word in noise_words:
         text = text.replace(word, '')
 
-    # Strip anything that isn't a letter or space (leftover symbols/punctuation)
     text = re.sub(r'[^A-Z\s]', ' ', text)
-
-    # Collapse extra spaces and trim
     text = re.sub(r'\s+', ' ', text).strip()
 
     return text.title() if text else "Unknown"

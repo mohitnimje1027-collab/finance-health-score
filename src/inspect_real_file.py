@@ -1,19 +1,25 @@
-import pandas as pd
+import sys
 from pathlib import Path
-import msoffcrypto
-import io
+sys.path.append(str(Path(__file__).resolve().parent))
 
-filepath = Path.home() / "Downloads" / "AccountStatement_11082026_154907.xlsx"
-password = input("Enter the file's password: ")
+from cleaner import normalize_merchant_name, parse_transaction_narration
 
-with open(filepath, 'rb') as f:
-    office_file = msoffcrypto.OfficeFile(f)
-    office_file.load_key(password=password)
-    decrypted = io.BytesIO()
-    office_file.decrypt(decrypted)
-    decrypted.seek(0)
-    df_raw = pd.read_excel(decrypted, header=None)
+test_narrations = [
+    "WDL TFR   UPI/DR/220113430287/MEESHO T/YESB/MEESHOONLI/UPI",
+    "DEP TFR   UPI/CR/133831126691/ATHARVAH/CNRB/9",
+    "WDL TFR   UPI/DR/172316906372/Bhumika /ICIC/8",
+    "ATM WDL  SBI ATM INDORE",
+    "NEFT-N123456789-JOHN DOE",
+]
 
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', 200)
-print(df_raw.head(20))
+for n in test_narrations:
+    payee, txn_type = parse_transaction_narration(n)
+    merchant = normalize_merchant_name(n)
+    print(f"{n[:40]:40s} -> type: {txn_type:8s} payee: {str(payee):15s} merchant: {merchant}")
+
+from merchant_dictionary import match_known_merchant
+
+test_merchants = ["Meesho T", "Atharvah", "Bhumika"]
+for m in test_merchants:
+    category, score = match_known_merchant(m)
+    print(f"{m:15s} -> {category} (score: {score})")
